@@ -1,10 +1,18 @@
 <template>
   <div class="container py-5">
-    <!-- Encabezado -->
-    <div class="text-center mb-4">
-      <h2 class="fw-bold text-primary">Reserva tu Tour hacia la</h2>
-      <h3 class="fw-bold text-secondary">Isla Saona</h3>
-    </div>
+      <div>
+        <div class="container py-4 px-3">
+          <!-- Banner-->
+          <div class="text-center mb-4">
+            <img src="../assets/banner-tour-saona.jpg" alt="Banner de Reserva de Tour" class="img-fluid rounded shadow-sm mb-4" style="max-width: 100%; object-fit: cover;">
+          </div>
+        </div>
+        <!-- Encabezado -->
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-primary">Reserva tu Tour hacia la</h2>
+          <h3 class="fw-bold text-secondary">Isla Saona</h3>
+        </div>
+      </div>
 
     <!-- Barra de progreso -->
     <div class="d-flex justify-content-between align-items-center mb-4">
