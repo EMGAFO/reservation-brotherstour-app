@@ -153,7 +153,7 @@
 
       <!-- Botón de WhatsApp -->
       <div class="mb-4">
-        <a href="https://wa.me/8097140305 " target="_blank" class="btn btn-success w-100 rounded-pill py-3">
+        <a href="https://chat.whatsapp.com/HSbgDhOagaSHiWyezfwtH2" target="_blank" class="btn btn-success w-100 rounded-pill py-3">
           <i class="bi bi-whatsapp me-2"></i> Unirme al grupo de WhatsApp
         </a>
       </div>
