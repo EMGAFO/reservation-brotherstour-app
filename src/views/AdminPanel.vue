@@ -28,45 +28,6 @@
     <!-- Botón limpiar filtros -->
     <button @click="clearFilters" class="btn btn-secondary ms-2">Limpiar</button>
 
-    <!-- Tabla con paginación -->
-<!--      <div class="table-responsive">
-      <table class="table table-bordered table-hover mt-4">
-        <thead class="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th class="text-center">Asiento</th>
-            <th class="text-center">Autobús</th>
-            <th>Fecha</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(reservation, index) in filteredReservations" :key="index">
-            <td>{{ reservation.id }}</td>
-            <td>{{ reservation.data.name }}</td>
-            <td>{{ reservation.data.phone }}</td>
-            <td>{{ reservation.data.email }}</td>
-            <td class="text-center">{{ reservation.data.seat }}</td>
-            <td class="text-center">{{ reservation.data.busId || "1" }}</td>
-            <td>{{ formatDate(reservation.data.timestamp) }}</td>
-            <td class="text-center">
-              <button @click="editReservation(reservation)" class="btn btn-sm btn-primary me-2">
-                <i class="bi bi-pencil"></i> Editar
-              </button>
-              <button @click="confirmDelete(reservation)" class="btn btn-sm btn-danger">
-                <i class="bi bi-trash"></i> Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
- -->
-
-
 <!-- Tabla o tarjeta según tamaño de pantalla -->
 <div v-if="isMobile">
   <!-- Vista móvil -->
@@ -107,7 +68,6 @@
   </thead>
   <tbody>
     <tr v-for="(reservation, index) in filteredReservations" :key="index">
-      <td>{{ reservation.id }}</td>
       <td>{{ reservation.data.name }}</td>
       <td>{{ reservation.data.phone }}</td>
       <td>{{ reservation.data.email }}</td>
