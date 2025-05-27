@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import TourReservation from '../components/TourReservation.vue';
+import LoginForm from '../views/LoginForm.vue';
+import ConfirmationView from '../views/ConfirmationView.vue';
+import AdminPanel from '../views/AdminPanel.vue';
+import RegisterUser from '../views/RegisterUser.vue';
 
 const routes = [
   {
@@ -10,7 +14,24 @@ const routes = [
   {
     path: '/confirmacion',
     name: 'Confirmacion',
-    component: () => import('../views/ConfirmationView.vue')
+    component: ConfirmationView
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginForm
+  },
+  {
+    path: '/registrar-admin',
+    name: 'RegisterUser',
+    component: RegisterUser,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin',
+    name: 'AdminPanel',
+    component: AdminPanel,
+    meta: { requiresAuth: true }
   }
 ];
 

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div id="app">
     <router-view />
   </div>
@@ -8,4 +8,19 @@
 export default {
   name: 'App'
 };
+</script> -->
+
+<template>
+  <AppNavbar /> <!-- ✅ Nuevo nombre del componente -->
+  <router-view />
+</template>
+
+<script>
+import AppNavbar from './components/AppNavbar.vue'; // ✅ Ruta corregida
+
+export default {
+  components: {
+    AppNavbar // ✅ Registro correcto
+  }
+}
 </script>

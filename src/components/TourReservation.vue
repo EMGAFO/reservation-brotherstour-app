@@ -96,18 +96,19 @@
       <!-- Mapa de Asientos -->
       <div class="seat-map d-flex flex-wrap justify-content-center">
         <div v-for="seat in 49" :key="seat" class="m-1">
-          <button
-            @click="toggleSeat(seat)"
-            :disabled="isSeatTaken(seat)"
-            :class="[
-              'btn seat',
-              selectedSeat === seat ? 'btn-success' : 'btn-outline-primary',
-              takenSeats.includes(seat) ? 'btn-danger' : ''
-            ]"
-            style="width: 38px; height: 38px; font-size: 0.8rem; padding: 0;"
-          >
-            {{ seat }}
-          </button>
+<button
+  @click="toggleSeat(seat)"
+  :disabled="isSeatTaken(seat)"
+  :class="[
+    'btn seat-btn',
+    { 'btn-success': selectedSeat === seat },
+    { 'btn-danger': isSeatTaken(seat) },
+    { 'btn-secondary': !isSeatTaken(seat) && selectedSeat !== seat }
+  ]"
+  style="width: 40px; height: 40px; font-size: 0.8rem; padding: 0;"
+>
+  {{ seat }}
+</button>
         </div>
       </div>
 
@@ -198,7 +199,7 @@
 </template>
 
 <script>
-import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
 
 export default {
@@ -218,6 +219,7 @@ export default {
       fixedDate: '2025-06-01',
       fixedTime: '10:00',
       selectedSeat: null,
+      currentBusId: 2, // Cambia a 2 para el nuevo autobús
       takenSeats: []
     };
   },
@@ -249,26 +251,42 @@ export default {
     isSeatTaken(seat) {
       return this.takenSeats.includes(seat);
     },
-    async loadTakenSeats() {
+/*     async loadTakenSeats() {
+      try {
+        const q = query(collection(db, "reservations"), where("date", "==", this.fixedDate), where("time", "==", this.fixedTime));
+        const querySnapshot = await getDocs(q);
+        const allSeats = [];
+        querySnapshot.forEach((doc) => {
+          const seat = doc.data().seat;
+          if (typeof seat === 'number') {
+            allSeats.push(seat);
+          }
+        });
+        this.takenSeats = [...new Set(allSeats)];
+      } catch (error) {
+        console.error("Error al cargar asientos:", error);
+      }
+    }, */
+    async loadTakenSeats() {0
       try {
         const reservationsRef = collection(db, "reservations");
         const q = query(
           reservationsRef,
           where("date", "==", this.fixedDate),
-          where("time", "==", this.fixedTime)
+          where("time", "==", this.fixedTime),
+          where("busId", "==", this.currentBusId)
         );
         const querySnapshot = await getDocs(q);
-
         const allSeats = [];
         querySnapshot.forEach((doc) => {
-          const seat = doc.data().seat;
-          if (seat) allSeats.push(seat);
+          const data = doc.data();
+          if (data.seat && typeof data.seat === 'number') {
+            allSeats.push(data.seat);
+          }
         });
-
         this.takenSeats = [...new Set(allSeats)];
-        console.log('Asientos ocupados:', this.takenSeats);
       } catch (error) {
-        console.error("Error al cargar asientos:", error);
+        console.error("Error al cargar asientos ocupados:", error);
       }
     },
     async submitForm() {
@@ -290,7 +308,9 @@ export default {
           seat: this.selectedSeat,
           date: this.fixedDate,
           time: this.fixedTime,
-          timestamp: new Date()
+          busId: this.currentBusId, // Guarda el ID del autobús actual
+          //timestamp: new Date()
+          timestamp: serverTimestamp(), // ✅ Guarda un Timestamp válido
         });
 
         // Ocultar formulario y mostrar pantalla final
