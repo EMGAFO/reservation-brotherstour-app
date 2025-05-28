@@ -117,7 +117,7 @@
       <div v-if="selectedBusId === '0'" class="d-flex flex-column gap-4">
         <!-- Autobús 1 -->
         <div>
-          <h6 class="text-primary">Autobús 1 - 10:00 AM</h6>
+          <h6 class="text-primary">Autobús 1</h6>
           <div class="seat-map d-flex flex-wrap justify-content-center">
             <div v-for="seat in allSeats" :key="'bus1-' + seat" class="m-1">
               <button
@@ -139,7 +139,7 @@
 
         <!-- Autobús 2 -->
         <div>
-          <h6 class="text-primary">Autobús 2 - 2:00 PM</h6>
+          <h6 class="text-primary">Autobús 2</h6>
           <div class="seat-map d-flex flex-wrap justify-content-center">
             <div v-for="seat in allSeats" :key="'bus2-' + seat" class="m-1">
               <button
