@@ -37,6 +37,7 @@
         <p class="mb-1"><strong>Nombre:</strong> {{ reservation.data.name }}</p>
         <p class="mb-1"><strong>Teléfono:</strong> {{ reservation.data.phone }}</p>
         <p class="mb-1"><strong>Email:</strong> {{ reservation.data.email }}</p>
+        <p class="mb-1"><strong>Cumpleaños:</strong> {{ formatDate(reservation.data.birthday) }}</p>
         <p class="mb-1"><strong>Asiento:</strong> {{ reservation.data.seat }}</p>
         <p class="mb-1"><strong>Autobús:</strong> {{ reservation.data.busId || "1" }}</p>
         <p class="mb-1"><strong>Fecha:</strong> {{ formatDate(reservation.data.timestamp) }}</p>
@@ -60,6 +61,7 @@
       <th>Nombre</th>
       <th>Teléfono</th>
       <th>Email</th>
+      <th class="text-center">Cumpleaños</th>
       <th class="text-center">Asiento</th>
       <th class="text-center">Autobús</th>
       <th>Fecha</th>
@@ -71,6 +73,7 @@
       <td>{{ reservation.data.name }}</td>
       <td>{{ reservation.data.phone }}</td>
       <td>{{ reservation.data.email }}</td>
+      <td class="text-center">{{ formatDate(reservation.data.birthday) }}</td>
       <td class="text-center">{{ reservation.data.seat }}</td>
       <td class="text-center">{{ reservation.data.busId || "1" }}</td>
       <td>{{ formatDate(reservation.data.timestamp) }}</td>
@@ -204,6 +207,28 @@
               <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input v-model="editing.data.email" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Cumpleaños</label>
+                <input v-model="editing.data.birthday" type="date" class="form-control" />
+              </div>
+<!--               <div class="mb-3">
+                <label class="form-label">Viajes Realizados</label>
+                <select v-model.number="editing.data.trips" class="form-select">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5+">5 o más</option>
+                </select>
+              </div> -->
+              <div class="mb-3">
+                <label class="form-label">Autobús</label>
+                <select v-model.number="editing.data.busId" class="form-select">
+                  <option :value="1">Autobús 1</option>
+                  <option :value="2">Autobús 2</option>
+                </select>
               </div>
               <div class="mb-3">
                 <label class="form-label">Asiento</label>
@@ -373,11 +398,23 @@ export default {
     },
     async saveChanges() {
       if (!this.editing) return;
+
       try {
         const reservationRef = doc(db, "reservations", this.editing.id);
+
+        // Validar y formatear birthday
+        if (this.editing.data.birthday) {
+          const birthday = new Date(this.editing.data.birthday);
+          if (isNaN(birthday.getTime())) {
+            alert("La fecha de cumpleaños no es válida.");
+            return;
+          }
+          this.editing.data.birthday = birthday.toISOString().split('T')[0];
+        }
+
         await updateDoc(reservationRef, this.editing.data);
         this.closeEditModal();
-        this.loadReservations(); // Recargar datos
+        this.loadReservations(); // Refresca datos
       } catch (error) {
         console.error("Error al guardar cambios:", error);
         alert("Hubo un problema al guardar los cambios.");
@@ -414,24 +451,36 @@ export default {
     },
     formatDate(timestamp) {
       if (!timestamp) return "N/A";
-      if (typeof timestamp.toDate === 'function') {
-        return timestamp.toDate().toLocaleString();
-      } else if (timestamp instanceof Date) {
-        return timestamp.toLocaleString();
-      } else if (typeof timestamp === 'string') {
-        const date = new Date(timestamp);
-        return isNaN(date.getTime()) ? "Formato desconocido" : date.toLocaleString();
-      } else if (typeof timestamp === 'number') {
-        const date = new Date(timestamp);
-        return isNaN(date.getTime()) ? "Fecha inválida" : date.toLocaleString();
-      } else {
-        console.error("Formato de fecha desconocido:", timestamp);
-        return "Formato desconocido";
+
+      // Si ya es una cadena válida YYYY-MM-DD, devolverla tal cual
+      if (typeof timestamp === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(timestamp)) {
+        return timestamp;
       }
+
+      // Si es un Timestamp de Firestore
+      if (typeof timestamp.toDate === 'function') {
+        const date = timestamp.toDate();
+        return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+
+      // Si es un objeto Date válido
+      if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
+        return timestamp.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+
+      // Si es un número (timestamp Unix)
+      if (typeof timestamp === 'number') {
+        const date = new Date(timestamp);
+        return isNaN(date.getTime()) ? "Fecha inválida" : date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+
+      // Otros formatos desconocidos
+      console.error("Formato de fecha desconocido:", timestamp);
+      return "Formato desconocido";
     },
     exportToCSV() {
       const csvRows = [];
-      csvRows.push(["Nombre", "Teléfono", "Email", "Asiento", "Autobús", "Fecha"].join(","));
+      csvRows.push(["Nombre", "Email", "Asiento","Autobús", "Teléfono", "Cumpleaños", "Viajes Realizados", "Niños",  "Recomendado por","Fecha"].join(","));
       let allReservations = [];
 
       if (this.selectedBusId === "0") {
@@ -447,10 +496,14 @@ export default {
         csvRows.push(
           [
             `"${r.data.name || ""}"`,
-            `"${r.data.phone || ""}"`,
             `"${r.data.email || ""}"`,
             `"${r.data.seat || ""}"`,
             `"${r.data.busId || "1"}"`,
+            `"${r.data.phone || ""}"`,
+            `"${this.formatDate(r.data.birthday)}"`,
+            `"${r.data.trips || "0"}"`,
+            `"${r.data.children || "0"}"`,
+           `"${r.data.recommendationSource || "No especificado"}"`,
             `"${this.formatDate(r.data.timestamp)}"`
           ].join(",")
         );
